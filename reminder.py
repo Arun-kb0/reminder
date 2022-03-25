@@ -17,7 +17,7 @@ def convert(t1):
         return hour
 
 def create_reminder():
-    rtime = "17:24"#in 24 clock
+    rtime = "17:43"#in 24 clock
     reminder_name = "workout"
     remarks = "do 100 pushups"
 
@@ -61,11 +61,14 @@ def alarm(time_now):
     c.execute("SELECT * FROM reminder")
     data = c.fetchall()
     for d in data:
-        
         if time_now in d :
             print("_"*20+"ALARM"+"_"*20)
             print(d)
-        
+            c.execute(f"DELETE FROM reminder where time = '{time_now}'")
+    show_reminder()
+    conn.commit()
+    conn.close()
+
 
 remind,time_now = create_reminder()
 add_to_db(remind)
