@@ -13,13 +13,11 @@ def convert(t1):
         min = (int(h)*60)+int(m)
         return min
     except:
-        h1 = t1/60
-        m1 =t1 % 60
-        hour = timedelta(hours=int(h1), minutes=m1)
+        hour = timedelta( minutes=t1)
         return hour
 
 def create_reminder():
-    rtime = "13:50"#in 24 clock
+    rtime = "17:24"#in 24 clock
     reminder_name = "workout"
     remarks = "do 100 pushups"
 
@@ -28,24 +26,48 @@ def create_reminder():
         #print(time_now_tmp)
         time_now= re.search(r" (.*:.*):",str(time_now_tmp))
         h,m= rtime.split(":")
-        if time_now.group(1) > rtime: 
+        if time_now.group(1) <= rtime:
             diff = convert(time_now.group(1)) - convert(rtime)
+            print(diff)
         else:
-            diff = convert(rtime) - convert(time_now.group(1))
+            diff = (convert(time_now.group(1)) - convert(rtime)) + 1440
+            print(diff)
         diff=convert(diff)
         print(f"{diff} remaining")
 
         remind = {reminder_name:{rtime:remarks}}
-        return remind
+        return remind,time_now.group(1)
 
 def add_to_db(remind):
-    c.execute("DROP TABLE if exists reminder ")
-    c.execute('''CREATE TABLE reminder(remider_name varchar(255) NOT NULL,time varcher(255) NOT NULL,remarks varchar(255) )''')
+    c.execute("DROP TABLE IF EXISTS reminder")
+    c.execute('''CREATE TABLE if not exists reminder ( reminder_name varchar(255) NOT NULL,time varchar(255) NOT NULL,remarks varchar(255) )''')
     for k,v in remind.items():
         for k1,v1 in v.items():
-            print(k,k1,v1)
-            table = '''INSERT INTO reminder (remainder_name,time,remarks) VALUES ()'''
+            k3,k2,v2 = "'"+str(k)+"'","'"+str(k1)+"'","'"+str(v1)+"'"
+            table = f'''INSERT INTO reminder(reminder_name,time,remarks) VALUES({k3},{k2},{v2})'''
+            c.execute(table)
+    conn.commit()
 
-            
-remind = create_reminder()
+def show_reminder():
+    print("all reminders")
+    c.execute("SELECT * FROM reminder ")
+    data = c.fetchall()
+    for d in data:
+        print(d)
+    conn.commit()
+    
+
+def alarm(time_now):
+    c.execute("SELECT * FROM reminder")
+    data = c.fetchall()
+    for d in data:
+        
+        if time_now in d :
+            print("_"*20+"ALARM"+"_"*20)
+            print(d)
+        
+
+remind,time_now = create_reminder()
 add_to_db(remind)
+show_reminder()
+alarm(time_now)
