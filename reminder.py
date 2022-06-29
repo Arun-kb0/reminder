@@ -43,43 +43,47 @@ def show_reminder():
 
 def alarm(select):
 
-    time_now_tmp = datetime.now()
-    #print(time_now_tmp)
-    time_now_tmp2= re.search(r" (.*:.*):",str(time_now_tmp))
-    time_now =  time_now_tmp2.group(1)
-
     alarm_bit=False
     c.execute("SELECT * FROM reminder")
     data = c.fetchall()
-    for d in data:
-        if time_now in d :
-            print("_"*20+"ALARM"+"_"*20)
-            print(f"time : {d[1]}\nreminder: {d[0]}\ngoal: {d[2]}")
-            c.execute(f"DELETE FROM reminder where time = '{time_now}'")
-            alarm_bit = True
-    conn.commit()
+
+    while alarm_bit ==False:
+        time_now_tmp = datetime.now()
+        #print(time_now_tmp)
+        time_now_tmp2= re.search(r" (.*:.*):",str(time_now_tmp))
+        time_now =  time_now_tmp2.group(1)
+
+        for d in data:
+            #print(f"alarm at{time_now}")
+            if time_now in d :
+                print("_"*20+"ALARM"+"_"*20)
+                print(f"time : {d[1]}\nreminder: {d[0]}\ngoal: {d[2]}")
+                c.execute(f"DELETE FROM reminder where time = '{time_now}'")
+                alarm_bit = True
+                break 
+        conn.commit()
     
-    if alarm_bit == False :
-        if select:
-            rtime = data[-1][1]
-            print_details(rtime)    
+        if alarm_bit == False :
+            if select:
+                rtime = data[-1][1]
+                print_details(rtime)    
         
-        else:
-            r={}
-            diff_sorted=[]
-            t2 = in_min(str(time_now))
-            for row in data:
-                t1 = in_min(str(row[1]))
-                diff = t1 - t2
-                if diff < 0:
-                    diff +=1444
-                r[diff]=row[1]           
-            print(r)
-            for k in sorted(r.keys()):
-                diff_sorted.append(r[k])
-                #print(k)
-            print_details(diff_sorted[0])
-            #print(r,"\n",diff_sorted)
+            else:
+                r={}
+                diff_sorted=[]
+                t2 = in_min(str(time_now))
+                for row in data:
+                    t1 = in_min(str(row[1]))
+                    diff = t1 - t2
+                    if diff < 0:
+                        diff +=1444
+                    r[diff]=row[1]           
+                print(r)
+                for k in sorted(r.keys()):
+                    diff_sorted.append(r[k])
+                    #print(k)
+                print_details(diff_sorted[0])
+                #print(r,"\n",diff_sorted)
 
 def print_details(rtime):
     #prints start time and time left for reminder
@@ -114,14 +118,18 @@ def print_details(rtime):
 if __name__ == "__main__" :
     conn = sqlite3.connect("remiders.db")
     c = conn.cursor()
+
+
+
     select = bool(input("enter any value to add reminder or press enter to check reminder "))
 
     if select:
         remind = create_reminder()
         add_to_db(remind)
         #show_reminder()
-        alarm_bit = alarm(select)            
+        #alarm_bit = alarm(select)      
+
     else:
-        show_reminder()
-        alarm(select)
+        show_reminder() 
+        #alarm(select)
     conn.close()
