@@ -1,10 +1,12 @@
+from cProfile import label
+from ctypes import alignment
 from lib2to3.pgen2.token import RIGHTSHIFTEQUAL
 import sqlite3
 import re  
 from datetime import date, datetime,timedelta
 from time import time
-
-
+from tkinter import *
+import tkinter
 
 def in_min(t1):
     h,m = t1.split(":")
@@ -12,11 +14,11 @@ def in_min(t1):
     #print(h,min)
     return min
 
-def create_reminder():
+def create_reminder(reminder_name, rtime, remarks):
    
-    reminder_name = str(input("enter reminder name : "))
-    rtime =str(input("enter time in 24 hour clock : "))
-    remarks = str(input("enter remarks : "))
+   # reminder_name = str(input("enter reminder name : "))
+    #rtime =str(input("enter time in 24 hour clock : "))
+    #remarks = str(input("enter remarks : "))
     
     if len(reminder_name) >0 and len(rtime)>0:   
         remind = {reminder_name:{rtime:remarks}}
@@ -84,6 +86,7 @@ def alarm(select):
                     #print(k)
                 print_details(diff_sorted[0])
                 #print(r,"\n",diff_sorted)
+                
 
 def print_details(rtime):
     #prints start time and time left for reminder
@@ -116,20 +119,54 @@ def print_details(rtime):
 
 
 if __name__ == "__main__" :
+    root = tkinter.Tk()
+    root.title("Reminder")
+    root.geometry("600x400")
+ 
     conn = sqlite3.connect("remiders.db")
     c = conn.cursor()
 
+    def submit(): 
+        reminder_name = rn.get()
+        rtime = rt.get()
+        remarks = rr.get()
 
-
-    select = bool(input("enter any value to add reminder or press enter to check reminder "))
-
-    if select:
-        remind = create_reminder()
+        remind = create_reminder(reminder_name, rtime, remarks)
         add_to_db(remind)
         #show_reminder()
-        #alarm_bit = alarm(select)      
+        alarm_bit = alarm(True) 
+        conn.close()     
 
-    else:
+    def check():
         show_reminder() 
-        #alarm(select)
-    conn.close()
+        #alarm(False)
+
+    rn = StringVar()
+    rt =StringVar()
+    rr = StringVar()
+
+
+    l1 = Label(root,text="enter reminder name :")
+    l2 = Label(root,text ="enter time :")
+    l3 = Label(root,text="enter remarks :")
+
+
+    
+    e1 = Entry(root, textvariable=rn)
+    e2 = Entry(root,textvariable=rt)
+    e3 = Entry(root,textvariable=rr)
+
+    btn1 = Button(root,text="create reminder",command=submit)
+    btn2 = Button(root,text="check reminders",command= check)
+
+    l1.grid(row=0,column=0)
+    e1.grid(row=0,column=1,columnspan=5, pady=10)
+    l2.grid(row=1,column=0)
+    e2.grid(row=1,column=1,columnspan=5,pady=10)
+    l3.grid(row=2,column=0,)
+    e3.grid(row=2,column=1,columnspan=5,pady=10)
+
+    btn1.grid(row=3,column=1,columnspan=5,pady=15)
+    btn2.grid(row=4,column=1, columnspan=5,pady=15)
+
+    root.mainloop()
