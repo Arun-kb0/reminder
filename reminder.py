@@ -1,12 +1,16 @@
 from cProfile import label
 from ctypes import alignment
 from lib2to3.pgen2.token import RIGHTSHIFTEQUAL
+from logging import RootLogger
+from operator import le
 import sqlite3
 import re  
 from datetime import date, datetime,timedelta
 from time import time
 from tkinter import *
 import tkinter
+
+root = tkinter.Tk()
 
 def in_min(t1):
     h,m = t1.split(":")
@@ -35,11 +39,24 @@ def add_to_db(remind):
     conn.commit()
 
 def show_reminder():
-    print("all reminders")
+    #print("all reminders")
+
+    new_window = Toplevel(root)
+    new_window.geometry("400x300")
+    new_window.title("all reminders ")
+
+    
+
     c.execute("SELECT * FROM reminder ")
     data = c.fetchall()
+
+    db_data = Text(new_window,width=70 ,height=20)
+    db_data.grid(row=0,column=0)
+
+
     for d in data:
-        print(d)
+        #print(d)
+        db_data.insert(END, str(d).strip("()") + "\n")
     conn.commit()
     
 
@@ -58,8 +75,12 @@ def alarm(select):
         for d in data:
             #print(f"alarm at{time_now}")
             if time_now in d :
-                print("_"*20+"ALARM"+"_"*20)
-                print(f"time : {d[1]}\nreminder: {d[0]}\ngoal: {d[2]}")
+                #print("_"*20+"ALARM"+"_"*20)
+                #print(f"time : {d[1]}\nreminder: {d[0]}\ngoal: {d[2]}")
+
+                alarm_on = Label(root,text="_"*20+"ALARM"+"_"*20 + "\n" +f"time : {d[1]}\nreminder: {d[0]}\ngoal: {d[2]}",
+                    width=50,anchor=E)
+                alarm_on.grid(row=3,column=6)
                 c.execute(f"DELETE FROM reminder where time = '{time_now}'")
                 alarm_bit = True
                 break 
@@ -110,20 +131,36 @@ def print_details(rtime):
         
         
     if int(h2)>0:
-            print(f"{h2} hours and {m2} minutes left")
+        #print(f"{h2} hours and {m2} minutes left")
+
+        t_count= f"{h2} hours and {m2} minutes left"
+        time_count = Label(root,text=t_count,width=40,anchor=E)
+        time_count.grid(row=0,column=7)
+        root.update()
+
     elif int(h2) == 0 and m>0:
-        print(f"{m2} minutes left")
-      
+        #print(f"{m2} minutes left")
+
+        t_count = f"{m2} minutes left" 
+        time_count = Label(root,text=t_count,width=40,anchor=E)
+        time_count.grid(row=0,column=7)
+        root.update()
+        #print(t_count)
     else:
-        print("less than 1 minute left")
+        #print("less than 1 minute left")
+
+        t_count =  "less than 1 minute left"
+        time_count = Label(root,text=t_count,width=40,anchor=E)
+        time_count.grid(row=0,column=7)
+        root.update()
 
 
 if __name__ == "__main__" :
-    root = tkinter.Tk()
+   
     root.title("Reminder")
     root.geometry("600x400")
  
-    conn = sqlite3.connect("remiders.db")
+    conn = sqlite3.connect(".gitignore/remiders.db")
     c = conn.cursor()
 
     def submit(): 
@@ -134,11 +171,11 @@ if __name__ == "__main__" :
         remind = create_reminder(reminder_name, rtime, remarks)
         add_to_db(remind)
         #show_reminder()
-        alarm_bit = alarm(True) 
-        conn.close()     
+           
 
     def check():
         show_reminder() 
+        alarm(True)
         #alarm(False)
 
     rn = StringVar()
@@ -168,5 +205,7 @@ if __name__ == "__main__" :
 
     btn1.grid(row=3,column=1,columnspan=5,pady=15)
     btn2.grid(row=4,column=1, columnspan=5,pady=15)
-
+ 
+   
     root.mainloop()
+    conn.close()  
