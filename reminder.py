@@ -162,8 +162,9 @@ if __name__ == "__main__" :
  
     conn = sqlite3.connect(".gitignore/remiders.db")
     c = conn.cursor()
-
+    
     def submit(): 
+       
         reminder_name = rn.get()
         rtime = rt.get()
         remarks = rr.get()
@@ -171,7 +172,7 @@ if __name__ == "__main__" :
         remind = create_reminder(reminder_name, rtime, remarks)
         add_to_db(remind)
         #show_reminder()
-           
+        alarm(True)
 
     def check():
         show_reminder() 
@@ -205,7 +206,8 @@ if __name__ == "__main__" :
 
     btn1.grid(row=3,column=1,columnspan=5,pady=15)
     btn2.grid(row=4,column=1, columnspan=5,pady=15)
- 
+    
+   
    
     root.mainloop()
     conn.close()  
