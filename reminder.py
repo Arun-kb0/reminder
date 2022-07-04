@@ -30,10 +30,10 @@ def create_reminder(reminder_name, rtime, remarks):
         remind = {reminder_name:{rtime:remarks}}
         return remind
              
-#create table and add data to DB
+#add data to DB
 def add_to_db(remind):
     #c.execute("DROP TABLE IF EXISTS reminder")
-    c.execute('''CREATE TABLE if not exists reminder ( reminder_name varchar(255) NOT NULL,time varchar(255) NOT NULL,remarks varchar(255) )''')
+    #c.execute('''CREATE TABLE if not exists reminder ( reminder_name varchar(255) NOT NULL,time varchar(255) NOT NULL,remarks varchar(255) )''')
     for k,v in remind.items():
         for k1,v1 in v.items():
             k3,k2,v2 = "'"+str(k)+"'","'"+str(k1)+"'","'"+str(v1)+"'"
@@ -174,6 +174,7 @@ if __name__ == "__main__" :
     #creating DB
     conn = sqlite3.connect("remiders.db")
     c = conn.cursor()
+    c.execute('''CREATE TABLE if not exists reminder ( reminder_name varchar(255) NOT NULL,time varchar(255) NOT NULL,remarks varchar(255) )''')
     
     #for creating reminder 
     def submit():
@@ -236,7 +237,6 @@ if __name__ == "__main__" :
 
     c.execute("SELECT * FROM reminder ")
     data1 = c.fetchall()
-    print(len(data1))
     if len(data1) !=0 :
         alarm(True)
 
