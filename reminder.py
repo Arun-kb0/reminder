@@ -9,6 +9,10 @@ from datetime import date, datetime,timedelta
 from time import time
 from tkinter import *
 import tkinter
+from tkinter.font import Font
+from turtle import bgcolor, color
+import time
+
 
 root = tkinter.Tk()
 
@@ -67,6 +71,8 @@ def alarm(select):
     data = c.fetchall()
 
     while alarm_bit ==False:
+
+        #print("in alarm")
         time_now_tmp = datetime.now()
         #print(time_now_tmp)
         time_now_tmp2= re.search(r" (.*:.*):",str(time_now_tmp))
@@ -78,12 +84,17 @@ def alarm(select):
                 #print("_"*20+"ALARM"+"_"*20)
                 #print(f"time : {d[1]}\nreminder: {d[0]}\ngoal: {d[2]}")
 
-                alarm_on = Label(root,text="_"*20+"ALARM"+"_"*20 + "\n" +f"time : {d[1]}\nreminder: {d[0]}\ngoal: {d[2]}",
-                    width=50,anchor=E)
-                alarm_on.grid(row=3,column=6)
+                alarm_on = Label(frame1,text=f"Reminder {d[0]} \nTime : {d[1]}\nGoal: {d[2]}",
+                font=font_airal3, foreground= "blue" )
+                alarm_on.grid(row=1,column=0)
+
+                #c.execute(f"SELECT FROM reminder where time ='{time_now}'")
+                #deleted =c.fetchone()
+                #print(deleted)
                 c.execute(f"DELETE FROM reminder where time = '{time_now}'")
                 alarm_bit = True
                 break 
+
         conn.commit()
     
         if alarm_bit == False :
@@ -101,7 +112,7 @@ def alarm(select):
                     if diff < 0:
                         diff +=1444
                     r[diff]=row[1]           
-                print(r)
+                #print(r)
                 for k in sorted(r.keys()):
                     diff_sorted.append(r[k])
                     #print(k)
@@ -133,38 +144,38 @@ def print_details(rtime):
     if int(h2)>0:
         #print(f"{h2} hours and {m2} minutes left")
 
-        t_count= f"{h2} hours and {m2} minutes left"
-        time_count = Label(root,text=t_count,width=40,anchor=E)
-        time_count.grid(row=0,column=7)
+        t_count= f"reminder in {h2} hours and {m2} minutes"
+        time_count = Label(frame1,text=t_count,width=40,font= font_airal2)
+        time_count.grid(row=0,column=0,pady=10)
         root.update()
 
     elif int(h2) == 0 and m>0:
         #print(f"{m2} minutes left")
 
-        t_count = f"{m2} minutes left" 
-        time_count = Label(root,text=t_count,width=40,anchor=E)
-        time_count.grid(row=0,column=7)
+        t_count = f"reminder in {m2} minutes" 
+        time_count = Label(frame1,text=t_count,width=40,font= font_airal2)
+        time_count.grid(row=0,column=0,pady=10)
         root.update()
-        #print(t_count)
+
     else:
         #print("less than 1 minute left")
 
-        t_count =  "less than 1 minute left"
-        time_count = Label(root,text=t_count,width=40,anchor=E)
-        time_count.grid(row=0,column=7)
+        t_count =  "reminder in less than 1 minute"
+        time_count = Label(frame1,text=t_count,width=40,font= font_airal2)
+        time_count.grid(row=0,column=0, pady=10)
         root.update()
 
 
 if __name__ == "__main__" :
    
     root.title("Reminder")
-    root.geometry("600x400")
+    root.geometry("700x400")
  
     conn = sqlite3.connect(".gitignore/remiders.db")
     c = conn.cursor()
     
-    def submit(): 
-       
+    def submit():
+
         reminder_name = rn.get()
         rtime = rt.get()
         remarks = rr.get()
@@ -175,27 +186,32 @@ if __name__ == "__main__" :
         alarm(True)
 
     def check():
+
         show_reminder() 
         alarm(True)
-        #alarm(False)
+
+
+    font_airal = Font(family="Arial", size ="15", weight="bold")
+    font_airal2 = Font(family="Arial", size ="10")
+    font_airal3 = Font(family="Arial", size ="10")
 
     rn = StringVar()
     rt =StringVar()
     rr = StringVar()
 
 
-    l1 = Label(root,text="enter reminder name :")
-    l2 = Label(root,text ="enter time :")
-    l3 = Label(root,text="enter remarks :")
+    l1 = Label(root,text="enter reminder name :",font= font_airal2)
+    l2 = Label(root,text ="enter time :",font= font_airal2)
+    l3 = Label(root,text="enter remarks :",font= font_airal2)
 
 
     
-    e1 = Entry(root, textvariable=rn)
-    e2 = Entry(root,textvariable=rt)
-    e3 = Entry(root,textvariable=rr)
+    e1 = Entry(root, textvariable=rn,font= font_airal2 )
+    e2 = Entry(root,textvariable=rt, font= font_airal2 )
+    e3 = Entry(root,textvariable=rr, font= font_airal2)
 
-    btn1 = Button(root,text="create reminder",command=submit)
-    btn2 = Button(root,text="check reminders",command= check)
+    btn1 = Button(root,text="create reminder",font= font_airal2, command=submit)
+    btn2 = Button(root,text="check reminders",font= font_airal2, command= check)
 
     l1.grid(row=0,column=0)
     e1.grid(row=0,column=1,columnspan=5, pady=10)
@@ -207,7 +223,10 @@ if __name__ == "__main__" :
     btn1.grid(row=3,column=1,columnspan=5,pady=15)
     btn2.grid(row=4,column=1, columnspan=5,pady=15)
     
-   
-   
+    frame1 = LabelFrame(root,text = "alarm details",width=5,height=30, font=font_airal ,
+        foreground="gray")
+    frame1.grid(row=0,column=7,padx=35)
+
+    alarm(True)
     root.mainloop()
     conn.close()  
