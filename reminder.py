@@ -16,22 +16,21 @@ import time
 
 root = tkinter.Tk()
 
+#convert data to minutes
 def in_min(t1):
     h,m = t1.split(":")
     min = (int(h)*60)+int(m)
     #print(h,min)
     return min
 
+#creates reminder
 def create_reminder(reminder_name, rtime, remarks):
    
-   # reminder_name = str(input("enter reminder name : "))
-    #rtime =str(input("enter time in 24 hour clock : "))
-    #remarks = str(input("enter remarks : "))
-    
     if len(reminder_name) >0 and len(rtime)>0:   
         remind = {reminder_name:{rtime:remarks}}
         return remind
              
+#create table and add data to DB
 def add_to_db(remind):
     #c.execute("DROP TABLE IF EXISTS reminder")
     c.execute('''CREATE TABLE if not exists reminder ( reminder_name varchar(255) NOT NULL,time varchar(255) NOT NULL,remarks varchar(255) )''')
@@ -42,6 +41,7 @@ def add_to_db(remind):
             c.execute(table)
     conn.commit()
 
+#shows all reminders
 def show_reminder():
     #print("all reminders")
 
@@ -63,7 +63,7 @@ def show_reminder():
         db_data.insert(END, str(d).strip("()") + "\n")
     conn.commit()
     
-
+#shows alarm on time
 def alarm(select):
 
     alarm_bit=False
@@ -84,7 +84,7 @@ def alarm(select):
                 #print("_"*20+"ALARM"+"_"*20)
                 #print(f"time : {d[1]}\nreminder: {d[0]}\ngoal: {d[2]}")
 
-                alarm_on = Label(frame1,text=f"Reminder {d[0]} \nTime : {d[1]}\nGoal: {d[2]}",
+                alarm_on = Label(frame1,text=f"Reminder : {d[0]} \nTime : {d[1]}\nGoal: {d[2]}",
                 font=font_airal3, foreground= "blue" )
                 alarm_on.grid(row=1,column=0)
 
@@ -119,7 +119,7 @@ def alarm(select):
                 print_details(diff_sorted[0])
                 #print(r,"\n",diff_sorted)
                 
-
+#covert data from alarm to format for printing
 def print_details(rtime):
     #prints start time and time left for reminder
 
@@ -165,15 +165,17 @@ def print_details(rtime):
         time_count.grid(row=0,column=0, pady=10)
         root.update()
 
-
+#main 
 if __name__ == "__main__" :
    
     root.title("Reminder")
     root.geometry("700x400")
  
-    conn = sqlite3.connect(".gitignore/remiders.db")
+    #creating DB
+    conn = sqlite3.connect("remiders.db")
     c = conn.cursor()
     
+    #for creating reminder 
     def submit():
 
         reminder_name = rn.get()
@@ -185,34 +187,38 @@ if __name__ == "__main__" :
         #show_reminder()
         alarm(True)
 
+    #shows all db contents in app
     def check():
 
         show_reminder() 
         alarm(True)
 
-
+    
+    #fonts
     font_airal = Font(family="Arial", size ="15", weight="bold")
     font_airal2 = Font(family="Arial", size ="10")
     font_airal3 = Font(family="Arial", size ="10")
 
+    #tkinter variables
     rn = StringVar()
     rt =StringVar()
     rr = StringVar()
 
-
+    #labelsv for entry
     l1 = Label(root,text="enter reminder name :",font= font_airal2)
     l2 = Label(root,text ="enter time :",font= font_airal2)
     l3 = Label(root,text="enter remarks :",font= font_airal2)
 
-
-    
+    #for entering data
     e1 = Entry(root, textvariable=rn,font= font_airal2 )
     e2 = Entry(root,textvariable=rt, font= font_airal2 )
     e3 = Entry(root,textvariable=rr, font= font_airal2)
 
+    #buttons
     btn1 = Button(root,text="create reminder",font= font_airal2, command=submit)
     btn2 = Button(root,text="check reminders",font= font_airal2, command= check)
 
+    #placing labels,buttons and entry
     l1.grid(row=0,column=0)
     e1.grid(row=0,column=1,columnspan=5, pady=10)
     l2.grid(row=1,column=0)
@@ -223,10 +229,16 @@ if __name__ == "__main__" :
     btn1.grid(row=3,column=1,columnspan=5,pady=15)
     btn2.grid(row=4,column=1, columnspan=5,pady=15)
     
+    #creating frame
     frame1 = LabelFrame(root,text = "alarm details",width=5,height=30, font=font_airal ,
         foreground="gray")
     frame1.grid(row=0,column=7,padx=35)
 
-    alarm(True)
+    c.execute("SELECT * FROM reminder ")
+    data1 = c.fetchall()
+    print(len(data1))
+    if len(data1) !=0 :
+        alarm(True)
+
     root.mainloop()
     conn.close()  
