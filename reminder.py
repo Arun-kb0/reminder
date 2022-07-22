@@ -1,8 +1,3 @@
-from cProfile import label
-from ctypes import alignment
-from lib2to3.pgen2.token import RIGHTSHIFTEQUAL
-from logging import RootLogger
-from operator import le
 import sqlite3
 import re  
 from datetime import date, datetime,timedelta
@@ -11,7 +6,8 @@ from tkinter import *
 import tkinter
 from tkinter.font import Font
 from turtle import bgcolor, color
-import time
+from PIL import Image,ImageTk
+
 
 
 root = tkinter.Tk()
@@ -81,18 +77,14 @@ def alarm(select):
         for d in data:
             #print(f"alarm at{time_now}")
             if time_now in d :
-                #print("_"*20+"ALARM"+"_"*20)
-                #print(f"time : {d[1]}\nreminder: {d[0]}\ngoal: {d[2]}")
 
                 alarm_on = Label(frame1,text=f"Reminder : {d[0]} \nTime : {d[1]}\nGoal: {d[2]}",
                 font=font_airal3, foreground= "blue" )
                 alarm_on.grid(row=1,column=0)
 
-                #c.execute(f"SELECT FROM reminder where time ='{time_now}'")
-                #deleted =c.fetchone()
-                #print(deleted)
                 c.execute(f"DELETE FROM reminder where time = '{time_now}'")
                 alarm_bit = True
+                root.bell()
                 break 
 
         conn.commit()
